@@ -2,8 +2,10 @@
 <%
     String action = request.getParameter("action");
     if (action != null) {
-        String rowType = request.getParameter("rowType");
-        String order = request.getParameter("order");
+        //String rowType = request.getParameter("rowType");
+        //String order = request.getParameter("order");
+        String rowType = "States";
+		String order = "TopK";
         String category = request.getParameter("category");
         Integer rowOffset = null, colOffset = null;
         try {
@@ -114,7 +116,7 @@
 		<% } %>
 	</tbody>
 </table>
-<%
+<%-- <%
 int rowCount = (rowType.equals("States")) ? analytics.getTotalStateCount() : analytics.getTotalUserCount();
 int colCount = analytics.getTotalProductCount();
 %>
@@ -145,7 +147,7 @@ int colCount = analytics.getTotalProductCount();
 </form>
 <% } %>
         </div>
-    </div>
+    </div> --%>
 <%
         }
     }

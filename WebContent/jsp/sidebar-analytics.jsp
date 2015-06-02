@@ -1,8 +1,10 @@
 <%@page import="java.util.List" import="helpers.*" import="models.*"%>
 <%
     List<CategoryWithCount> categories = CategoriesHelper.listCategoriesNoCount();
-	String rowType = request.getParameter("rowType");
-	String order = request.getParameter("order");
+	//String rowType = request.getParameter("rowType");
+	//String order = request.getParameter("order");
+	String rowType = "States";
+	String order = "TopK";
 	String category = request.getParameter("category");
 %>
 <div class="panel panel-default">
@@ -10,14 +12,16 @@
 		<div class="bottom-nav">
 			<form action="analytics" method="POST" >
 				<ul class="nav nav-list">
-					<li><select name="rowType" id="search_key">
+					<%-- <li><select name="rowType" id="search_key">
 					       <%= AnalyticsHelper.isSelected("Customers",rowType) %>
 					       <%= AnalyticsHelper.isSelected("States",rowType) %>
 					</select></li>
                     <li><select name="order" id="search_key_0">
                            <%= AnalyticsHelper.isSelected("Alphabetical",order) %>
                            <%= AnalyticsHelper.isSelected("TopK",order) %>
-                    </select>
+                    </select> --%>
+                    <li><%=rowType%></li>
+                    <li><%=order%></li>
 					<li><select name="category" id="search_key_2">
 							<option value="0" selected="selected">All Categories</option>
 							<%
@@ -31,7 +35,7 @@
 				<input type="hidden" name="col_offset" value="0"> 
 				<input type="hidden" name="action" value="search">
 				<input style="margin : 10px 15px;" type="submit" value="Search">
-			</form>
+				<input type="submit" value="Refresh">
 			</form>
 		</div>
 	</div>

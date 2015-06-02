@@ -31,9 +31,12 @@ public class HelperUtils {
 
     public static Connection connect() throws Exception {
         Class.forName("org.postgresql.Driver");
-        String url = "jdbc:postgresql://localhost:5432/test";
+        /*String url = "jdbc:postgresql://127.0.0.1:5432/smalldb";
         String user = "postgres";
-        String password = "elmer1993";
+        String password = "postgres";*/
+        String url = "jdbc:postgresql://localhost:5432/postgres";
+        String user = "Mandy";
+        String password = "";
         return DriverManager.getConnection(url, user, password);
     }
 }
