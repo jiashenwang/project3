@@ -1,25 +1,37 @@
-
+<script src="./js/check-username.js"></script>
+ <div hidden id="unsuccess" class="alert alert-danger">
+ </div>
+ <div hidden id="success" class="alert alert-success">
+ </div>
 <div class="container">
-    <form action="signup" method="post">
+    <!-- <form action="signup" method="post"> -->
+		
         <table align="center">
             <tr>
                 <td>Name:</td>
-                <td><input type="text" id="name" name="name"></td>
+                <td><input onkeyup="checkUser()" type="text" id="name" name="name"></td>
             </tr>
+            <tr><td><font id="username" color="red">Name not provided</font></td></tr>
             <tr>
                 <td>Role:</td>
-                <td><select id="role" name="role">
+                <td><select id="role" name="role" onchange="checkRole()">
+                		<option selected></option>
                         <option>owner</option>
                         <option>customer</option>
                 </select></td>
             </tr>
+            <tr><td><font id="userrole" color="red">Role not provided</font></td></tr>
             <tr>
                 <td>Age:</td>
-                <td><input type="text" id="age" name="age"></td>
+                <td><input onkeyup="checkAge()" type="text" id="age" name="age"></td>
+            </tr>
+            <tr>
+                <td> <font id="userage" color="red">Age not provided</font> </td>
             </tr>
             <tr>
                 <td>State:</td>
-                <td><select id="state" name="state">
+                <td><select id="state" name="state" onchange="checkState()">
+                		<option selected></option>
                         <option>Alabama</option>
                         <option>Alaska</option>
                         <option>Arizona</option>
@@ -72,9 +84,10 @@
                         <option>Wyoming</option>
                 </select></td>
             </tr>
+            <tr><td><font id="userstate" color="red">State not provided</font></td></tr>
             <tr>
-                <td><input type="submit" value="Signup"></td>
+                <td><button onclick="signUp()"id="signup">SignUp</button></td>
             </tr>
         </table>
-    </form>
+    <!--  </form> -->
 </div>
