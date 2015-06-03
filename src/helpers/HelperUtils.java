@@ -28,7 +28,7 @@ public class HelperUtils {
                 + "<h4 class=\"modal-title\" id=\"myModalLabel\">" + title + "</h4>" + "</div>"
                 + "<div class=\"modal-body\">" + data + "</div></div></div></div>";
     }  
-
+ 
     public static Connection connect() throws Exception {
         Class.forName("org.postgresql.Driver");
         //String url = "jdbc:postgresql://127.0.0.1:5432/smalldb";
