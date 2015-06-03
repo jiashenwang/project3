@@ -348,7 +348,7 @@ public class AnalyticsHelper {
             rs = stmt.executeQuery(query);
             while(rs.next()){
             	date = rs.getString(1);
-            	//System.out.println(rs.getString(1));
+            	System.out.println(rs.getString(1));
             }
             conn.close();
             stmt.close();
@@ -364,81 +364,85 @@ public class AnalyticsHelper {
         Connection conn = null;
         Statement stmt = null;
         ResultSet rs = null;
-        try{
-        	conn = HelperUtils.connect();
-            stmt = conn.createStatement();
-            
-            //get the latest sales since last run/refresh
-            String query = "SELECT u.state, s.uid, p.cid, s.pid, (s.quantity * s.price) AS sale, s.timestamp"+
-            			   " FROM sales s , users u, products p"+
-            			   " WHERE s.timestamp > '"+date+"'"+
-            			   " AND u.id = s.uid AND p.id = s.pid;";
-            rs = stmt.executeQuery(query);
-            String lastTimeStamp = null;
-            
-            //iterate through new sales
-            while(rs.next()){
-            	//TODO
-            	//get the last sales timestamp
-            	String usersState = rs.getString(1);
-            	String salesUid = rs.getString(2);
-            	String productsCid = rs.getString(3);
-            	String salesPid = rs.getString(4);
-            	String salesPrice = rs.getString(5);
-            	lastTimeStamp = rs.getString(6);
-            	
-            	
-            	//update pre_state_all
-            	PreparedStatement pre = null;
-            	conn.setAutoCommit(false);
-            	
-            	query = "UPDATE pre_states_all"+
-            			" SET sum = sum+"+salesPrice+", tstamp = '"+lastTimeStamp+"'"+
-            			" WHERE stateid = "+usersState+";";
-            	pre = conn.prepareStatement(query);
-            	pre.executeUpdate();
-            	conn.commit();
-            	
-            	//update pre_state_cate
-            	query = "UPDATE pre_state_cate"+ 
-            			" SET sum=sum+"+salesPrice+", tstamp = '"+lastTimeStamp+"'"+ 
-            			" WHERE stateid = "+usersState+" AND cid = "+productsCid+";";
-            	pre = conn.prepareStatement(query);
-            	pre.executeUpdate();
-            	conn.commit();
-            	
-            	//update pre_products_cid
-            	query = "UPDATE pre_products_cid"+
-            			" SET sum=sum+"+salesPrice+", tstamp = '"+lastTimeStamp+"'"+
-            			" WHERE pid = "+salesPid+" AND cid = "+productsCid+";";
-            	pre = conn.prepareStatement(query);
-            	pre.executeUpdate();
-            	conn.commit();
-            	
-            	//update pre_middle
-            	query = "UPDATE pre_middle"+
-            			" SET sum=sum+"+salesPrice+" , tstamp = '"+lastTimeStamp+"'"+
-            			" WHERE stateid = "+usersState+" AND cid = "+productsCid+";";
-            	pre = conn.prepareStatement(query);
-            	pre.executeUpdate();
-            	conn.commit();
-            	conn.setAutoCommit(true);
-            	
-            }
-            //update global time stamp if last timestamp is not null
-            if(lastTimeStamp != null){
-	            query = "UPDATE last_updated_time SET timestamp= '"+lastTimeStamp+"';";
-	            stmt.execute(query);
-            }
-            
-            conn.close();
-            stmt.close();
-            return lastTimeStamp;
-        }catch(SQLException e){
-        	throw new RuntimeException(e);
-        } catch (Exception e) {
-			e.printStackTrace();
-		}
-        return null;
+        if(date !=null){
+            try{
+            	conn = HelperUtils.connect();
+                stmt = conn.createStatement();
+                //get the latest sales since last run/refresh
+                String query = "SELECT u.state, s.uid, p.cid, s.pid, (s.quantity * s.price) AS sale, s.timestamp"+
+                			   " FROM sales s , users u, products p"+
+                			   " WHERE s.timestamp > '"+date+"'"+
+                			   " AND u.id = s.uid AND p.id = s.pid;";
+                rs = stmt.executeQuery(query);
+                String lastTimeStamp = null;
+                
+                //iterate through new sales
+                while(rs.next()){
+                	//TODO
+                	//get the last sales timestamp
+                	String usersState = rs.getString(1);
+                	System.out.println("stateid: "+usersState);
+                	String salesUid = rs.getString(2);
+                	String productsCid = rs.getString(3);
+                	String salesPid = rs.getString(4);
+                	String salesPrice = rs.getString(5);
+                	lastTimeStamp = rs.getString(6);
+                	
+                	
+                	//update pre_state_all
+                	PreparedStatement pre = null;
+                	conn.setAutoCommit(false);
+                	
+                	query = "UPDATE pre_states_all"+
+                			" SET sum = sum+"+salesPrice+", tstamp = '"+lastTimeStamp+"'"+
+                			" WHERE stateid = "+usersState+";";
+                	pre = conn.prepareStatement(query);
+                	pre.executeUpdate();
+                	conn.commit();
+                	
+                	//update pre_state_cate
+                	query = "UPDATE pre_state_cate"+ 
+                			" SET sum=sum+"+salesPrice+", tstamp = '"+lastTimeStamp+"'"+ 
+                			" WHERE stateid = "+usersState+" AND cid = "+productsCid+";";
+                	pre = conn.prepareStatement(query);
+                	pre.executeUpdate();
+                	conn.commit();
+                	
+                	//update pre_products_cid
+                	query = "UPDATE pre_products_cid"+
+                			" SET sum=sum+"+salesPrice+", tstamp = '"+lastTimeStamp+"'"+
+                			" WHERE pid = "+salesPid+" AND cid = "+productsCid+";";
+                	pre = conn.prepareStatement(query);
+                	pre.executeUpdate();
+                	conn.commit();
+                	
+                	//update pre_middle
+                	query = "UPDATE pre_middle"+
+                			" SET sum=sum+"+salesPrice+" , tstamp = '"+lastTimeStamp+"'"+
+                			" WHERE stateid = "+usersState+" AND cid = "+productsCid+";";
+                	pre = conn.prepareStatement(query);
+                	pre.executeUpdate();
+                	conn.commit();
+                	conn.setAutoCommit(true);
+                	
+                }
+                //update global time stamp if last timestamp is not null
+                if(lastTimeStamp != null){
+    	            query = "UPDATE last_updated_time SET timestamp= '"+lastTimeStamp+"';";
+    	            stmt.execute(query);
+                }
+                
+                conn.close();
+                stmt.close();
+                return lastTimeStamp;
+            }catch(SQLException e){
+            	throw new RuntimeException(e);
+            } catch (Exception e) {
+    			e.printStackTrace();
+    		}
+            return null;
+        }else{
+            return null;
+        }
     }
 }

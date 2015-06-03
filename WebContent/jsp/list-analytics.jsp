@@ -3,10 +3,10 @@
     // check out global time stamp
 	String date = AnalyticsHelper.getGlobalTimeStamp();
 	application.setAttribute("Global_Time_Stamp", date);
-
     String action = request.getParameter("action");
     if (action != null) {
     	if(action.equals("search")){
+    		
  			String last_updated_date = AnalyticsHelper.UpdatePrecomputation(date);
     		
 	        //String rowType = request.getParameter("rowType");
