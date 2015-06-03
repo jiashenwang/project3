@@ -34,9 +34,9 @@ public class HelperUtils {
         /*String url = "jdbc:postgresql://127.0.0.1:5432/smalldb";
         String user = "postgres";
         String password = "postgres";*/
-        String url = "jdbc:postgresql://localhost:5432/postgres";
-        String user = "Mandy";
-        String password = "";
+        String url = "jdbc:postgresql://localhost:5432/test";
+        String user = "postgres";
+        String password = "elmer1993";
         return DriverManager.getConnection(url, user, password);
     }
 }

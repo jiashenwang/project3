@@ -12,7 +12,7 @@
 		found = UsernameHelper.findUser(username);
 		JSONObject result = new JSONObject();
 		result.put("success", true);
-		result.put("found", found);
+		result.put("found", found);  
 	    out.print(result);
 	    out.flush();
 	}else if(action.equals("signup")){
