@@ -27,11 +27,12 @@ public class HelperUtils {
                 + "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>"
                 + "<h4 class=\"modal-title\" id=\"myModalLabel\">" + title + "</h4>" + "</div>"
                 + "<div class=\"modal-body\">" + data + "</div></div></div></div>";
-    }
+    }  
 
     public static Connection connect() throws Exception {
         Class.forName("org.postgresql.Driver");
-        String url = "jdbc:postgresql://127.0.0.1:5432/smalldb";
+        //String url = "jdbc:postgresql://127.0.0.1:5432/smalldb";
+        String url = "jdbc:postgresql://localhost:5432/smalldb";
         String user = "postgres";
         String password = "postgres";
         return DriverManager.getConnection(url, user, password);
