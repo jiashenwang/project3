@@ -25,7 +25,7 @@ public class AnalyticsHelper {
         Statement stmt = null;
         ResultSet rs = null;
         // Statements that vary among user configurations
-        String statesQuery = null, statesQuery2 = null, statesQuery3 = null;
+        String statesQuery = null, statesQuery2 = null, statesQuery3 = null, orderquery = null;
         String productQuery = null, productQuery2 = null, productQuery3 = null;
         String colCount = null;
         int maxState, maxProduct;
@@ -36,28 +36,28 @@ public class AnalyticsHelper {
             conn = HelperUtils.connect();
             stmt = conn.createStatement();
             if ("0".equals(category)) {
-            	statesQuery3 = "SELECT * FROM pre_states_all;";
-            	productQuery3 = "SELECT pid, pname, sum FROM pre_products_cid LIMIT 50;";
-            	cellsQuery = "SELECT s.stateid, p.pid, pre_middle.sum FROM pre_states_all s, (SELECT * FROM pre_products_cid LIMIT 50) p, pre_middle WHERE s.stateid = pre_middle.stateid AND p.pid = pre_middle.pid;";
+            	statesQuery3 = "SELECT * FROM pre_states_all ORDER BY sum DESC;";
+            	productQuery3 = "SELECT pid, pname, sum FROM pre_products_cid ORDER BY sum DESC LIMIT 50;";
+            	cellsQuery = "SELECT s.stateid, p.pid, pre_middle.sum FROM pre_states_all s, (SELECT * FROM pre_products_cid ORDER BY sum DESC LIMIT 50) p, pre_middle WHERE s.stateid = pre_middle.stateid AND p.pid = pre_middle.pid;";
             	colCount = "50";
             } else {
             	statesQuery3 = "SELECT states.id, states.name, sum FROM states LEFT OUTER JOIN (SELECT * FROM pre_state_cate WHERE pre_state_cate.cid ="+category+") AS st ON st.stateid = states.id  ORDER BY sum DESC NULLS LAST;";
-            	productQuery3 = "SELECT pid, pname, sum FROM pre_products_cid WHERE pre_products_cid.cid = "+category+" LIMIT 50;";
-            	cellsQuery = "SELECT s.stateid, p.pid, pre_middle.sum FROM pre_states_all s, (SELECT pid, pname, sum FROM pre_products_cid WHERE pre_products_cid.cid = "+category+" LIMIT 50) p, pre_middle WHERE s.stateid = pre_middle.stateid AND p.pid = pre_middle.pid;";
+            	productQuery3 = "SELECT pid, pname, sum FROM pre_products_cid WHERE pre_products_cid.cid = "+category+" ORDER BY sum DESC LIMIT 50;";
+            	cellsQuery = "SELECT s.stateid, p.pid, pre_middle.sum FROM pre_states_all s, (SELECT pid, pname, sum FROM pre_products_cid WHERE pre_products_cid.cid = "+category+" ORDER BY sum DESC LIMIT 50) p, pre_middle WHERE s.stateid = pre_middle.stateid AND p.pid = pre_middle.pid;";
             	colCount = "50";
             }
 
             // Dump on console query results;
-            System.out.println("==========Query Dump (" + new Date() + ")========");
-            System.out.println("User Query 1 : " + statesQuery);
-            System.out.println("User Query 2 : " + statesQuery2);
-            System.out.println("User Query 3 : " + statesQuery3);
-            System.out.println("Product Query 1 : " + productQuery);
-            System.out.println("Product Query 2 : " + productQuery2);
-            System.out.println("Product Query 3 : " + productQuery3);
-            System.out.println("Cells Query : " + cellsQuery);
-            System.out.println("Row Count Query: " + rowCount);
-            System.out.println("Column Count Query: " + colCount);
+//            System.out.println("==========Query Dump (" + new Date() + ")========");
+//            System.out.println("User Query 1 : " + statesQuery);
+//            System.out.println("User Query 2 : " + statesQuery2);
+//            System.out.println("User Query 3 : " + statesQuery3);
+//            System.out.println("Product Query 1 : " + productQuery);
+//            System.out.println("Product Query 2 : " + productQuery2);
+//            System.out.println("Product Query 3 : " + productQuery3);
+//            System.out.println("Cells Query : " + cellsQuery);
+//            System.out.println("Row Count Query: " + rowCount);
+//            System.out.println("Column Count Query: " + colCount);
 
             long start = System.currentTimeMillis();
             // Create and fill temp tables
@@ -73,7 +73,7 @@ public class AnalyticsHelper {
             HashMap<Integer, Integer> productPrices = new HashMap<Integer, Integer>();
 
             rs = stmt.executeQuery(statesQuery3);
-            System.out.println("HERE3");
+            //System.out.println("HERE3");
             while (rs.next()) {
                 String name = rs.getString(2);
                 int sid = rs.getInt(1);
@@ -100,7 +100,7 @@ public class AnalyticsHelper {
                 int uid = rs.getInt(1);
                 int pid = rs.getInt(2);
                 int amount = rs.getInt(3);
-                System.out.println("uid:"+ uid +" pid:"+ pid + " amount:"+ amount);
+                //System.out.println("uid:"+ uid +" pid:"+ pid + " amount:"+ amount);
                 prices[statePosition.indexOf(uid)][productPosition.indexOf(pid)] = amount;
             }
             rs.close();
@@ -334,5 +334,111 @@ public class AnalyticsHelper {
         } else {
             return "<option value=\"" + value + "\">" + option + "</option>";
         }
+    }
+    
+    public static String getGlobalTimeStamp(){
+        Connection conn = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+        String date = null;
+        try{
+        	conn = HelperUtils.connect();
+            stmt = conn.createStatement();
+            String query = "SELECT * FROM last_updated_time";
+            rs = stmt.executeQuery(query);
+            while(rs.next()){
+            	date = rs.getString(1);
+            	//System.out.println(rs.getString(1));
+            }
+            conn.close();
+            stmt.close();
+            return date;
+        }catch(SQLException e){
+        	throw new RuntimeException(e);
+        } catch (Exception e) {
+			e.printStackTrace();
+		}
+        return null;
+    }
+    public static String UpdatePrecomputation(String date){
+        Connection conn = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+        try{
+        	conn = HelperUtils.connect();
+            stmt = conn.createStatement();
+            
+            //get the latest sales since last run/refresh
+            String query = "SELECT u.state, s.uid, p.cid, s.pid, (s.quantity * s.price) AS sale, s.timestamp"+
+            			   " FROM sales s , users u, products p"+
+            			   " WHERE s.timestamp > '"+date+"'"+
+            			   " AND u.id = s.uid AND p.id = s.pid;";
+            rs = stmt.executeQuery(query);
+            String lastTimeStamp = null;
+            
+            //iterate through new sales
+            while(rs.next()){
+            	//TODO
+            	//get the last sales timestamp
+            	String usersState = rs.getString(1);
+            	String salesUid = rs.getString(2);
+            	String productsCid = rs.getString(3);
+            	String salesPid = rs.getString(4);
+            	String salesPrice = rs.getString(5);
+            	lastTimeStamp = rs.getString(6);
+            	
+            	
+            	//update pre_state_all
+            	PreparedStatement pre = null;
+            	conn.setAutoCommit(false);
+            	
+            	query = "UPDATE pre_states_all"+
+            			" SET sum = sum+"+salesPrice+", tstamp = '"+lastTimeStamp+"'"+
+            			" WHERE stateid = "+usersState+";";
+            	pre = conn.prepareStatement(query);
+            	pre.executeUpdate();
+            	conn.commit();
+            	
+            	//update pre_state_cate
+            	query = "UPDATE pre_state_cate"+ 
+            			" SET sum=sum+"+salesPrice+", tstamp = '"+lastTimeStamp+"'"+ 
+            			" WHERE stateid = "+usersState+" AND cid = "+productsCid+";";
+            	pre = conn.prepareStatement(query);
+            	pre.executeUpdate();
+            	conn.commit();
+            	
+            	//update pre_products_cid
+            	query = "UPDATE pre_products_cid"+
+            			" SET sum=sum+"+salesPrice+", tstamp = '"+lastTimeStamp+"'"+
+            			" WHERE pid = "+salesPid+" AND cid = "+productsCid+";";
+            	pre = conn.prepareStatement(query);
+            	pre.executeUpdate();
+            	conn.commit();
+            	
+            	//update pre_middle
+            	query = "UPDATE pre_middle"+
+            			" SET sum=sum+"+salesPrice+" , tstamp = '"+lastTimeStamp+"'"+
+            			" WHERE stateid = "+usersState+" AND cid = "+productsCid+";";
+            	pre = conn.prepareStatement(query);
+            	pre.executeUpdate();
+            	conn.commit();
+            	conn.setAutoCommit(true);
+            	
+            }
+            //update global time stamp if last timestamp is not null
+            if(lastTimeStamp != null){
+	            query = "UPDATE last_updated_time SET timestamp= '"+lastTimeStamp+"';";
+	            stmt.execute(query);
+            }
+            
+            conn.close();
+            stmt.close();
+            return lastTimeStamp;
+        }catch(SQLException e){
+        	throw new RuntimeException(e);
+        } catch (Exception e) {
+			e.printStackTrace();
+		}
+        return null;
     }
 }
