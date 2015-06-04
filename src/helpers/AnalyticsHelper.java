@@ -11,6 +11,9 @@ import java.util.HashMap;
 
 import javax.servlet.jsp.JspWriter;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import models.Analytics;
 import models.Product;
 import models.State;
@@ -348,7 +351,6 @@ public class AnalyticsHelper {
             rs = stmt.executeQuery(query);
             while(rs.next()){
             	date = rs.getString(1);
-            	//System.out.println(rs.getString(1));
             }
             conn.close();
             stmt.close();
@@ -360,85 +362,170 @@ public class AnalyticsHelper {
 		}
         return null;
     }
-    public static String UpdatePrecomputation(String date){
+    public static String UpdatePrecomputation(){
         Connection conn = null;
         Statement stmt = null;
         ResultSet rs = null;
-        try{
-        	conn = HelperUtils.connect();
-            stmt = conn.createStatement();
-            
-            //get the latest sales since last run/refresh
-            String query = "SELECT u.state, s.uid, p.cid, s.pid, (s.quantity * s.price) AS sale, s.timestamp"+
-            			   " FROM sales s , users u, products p"+
-            			   " WHERE s.timestamp > '"+date+"'"+
-            			   " AND u.id = s.uid AND p.id = s.pid;";
-            rs = stmt.executeQuery(query);
-            String lastTimeStamp = null;
-            
-            //iterate through new sales
-            while(rs.next()){
-            	//TODO
-            	//get the last sales timestamp
-            	String usersState = rs.getString(1);
-            	String salesUid = rs.getString(2);
-            	String productsCid = rs.getString(3);
-            	String salesPid = rs.getString(4);
-            	String salesPrice = rs.getString(5);
-            	lastTimeStamp = rs.getString(6);
-            	
-            	
-            	//update pre_state_all
-            	PreparedStatement pre = null;
-            	conn.setAutoCommit(false);
-            	
-            	query = "UPDATE pre_states_all"+
-            			" SET sum = sum+"+salesPrice+", tstamp = '"+lastTimeStamp+"'"+
-            			" WHERE stateid = "+usersState+";";
-            	pre = conn.prepareStatement(query);
-            	pre.executeUpdate();
-            	conn.commit();
-            	
-            	//update pre_state_cate
-            	query = "UPDATE pre_state_cate"+ 
-            			" SET sum=sum+"+salesPrice+", tstamp = '"+lastTimeStamp+"'"+ 
-            			" WHERE stateid = "+usersState+" AND cid = "+productsCid+";";
-            	pre = conn.prepareStatement(query);
-            	pre.executeUpdate();
-            	conn.commit();
-            	
-            	//update pre_products_cid
-            	query = "UPDATE pre_products_cid"+
-            			" SET sum=sum+"+salesPrice+", tstamp = '"+lastTimeStamp+"'"+
-            			" WHERE pid = "+salesPid+" AND cid = "+productsCid+";";
-            	pre = conn.prepareStatement(query);
-            	pre.executeUpdate();
-            	conn.commit();
-            	
-            	//update pre_middle
-            	query = "UPDATE pre_middle"+
-            			" SET sum=sum+"+salesPrice+" , tstamp = '"+lastTimeStamp+"'"+
-            			" WHERE stateid = "+usersState+" AND cid = "+productsCid+";";
-            	pre = conn.prepareStatement(query);
-            	pre.executeUpdate();
-            	conn.commit();
-            	conn.setAutoCommit(true);
-            	
-            }
-            //update global time stamp if last timestamp is not null
-            if(lastTimeStamp != null){
-	            query = "UPDATE last_updated_time SET timestamp= '"+lastTimeStamp+"';";
-	            stmt.execute(query);
-            }
-            
-            conn.close();
-            stmt.close();
-            return lastTimeStamp;
-        }catch(SQLException e){
-        	throw new RuntimeException(e);
-        } catch (Exception e) {
+        String date = null;
+        
+        date = getGlobalTimeStamp();
+        
+        if(date !=null){
+            try{
+            	conn = HelperUtils.connect();
+                stmt = conn.createStatement();
+                //get the latest sales since last run/refresh
+                String query = "SELECT u.state, s.uid, p.cid, s.pid, (s.quantity * s.price) AS sale, s.timestamp"+
+                			   " FROM sales s , users u, products p"+
+                			   " WHERE s.timestamp > '"+date+"'"+
+                			   " AND u.id = s.uid AND p.id = s.pid;";
+                rs = stmt.executeQuery(query);
+                String lastTimeStamp = null;
+                
+                //iterate through new sales
+                while(rs.next()){
+                	//TODO
+                	//get the last sales timestamp
+                	String usersState = rs.getString(1);
+                	String salesUid = rs.getString(2);
+                	String productsCid = rs.getString(3);
+                	String salesPid = rs.getString(4);
+                	String salesPrice = rs.getString(5);
+                	lastTimeStamp = rs.getString(6);
+                	
+                	
+                	//update pre_state_all
+                	PreparedStatement pre = null;
+                	conn.setAutoCommit(false);
+                	
+                	query = "UPDATE pre_states_all"+
+                			" SET sum = sum+"+salesPrice+", tstamp = '"+lastTimeStamp+"'"+
+                			" WHERE stateid = "+usersState+";";
+                	pre = conn.prepareStatement(query);
+                	pre.executeUpdate();
+                	conn.commit();
+                	
+                	//update pre_state_cate
+                	query = "UPDATE pre_state_cate"+ 
+                			" SET sum=sum+"+salesPrice+", tstamp = '"+lastTimeStamp+"'"+ 
+                			" WHERE stateid = "+usersState+" AND cid = "+productsCid+";";
+                	pre = conn.prepareStatement(query);
+                	pre.executeUpdate();
+                	conn.commit();
+                	
+                	//update pre_products_cid
+                	query = "UPDATE pre_products_cid"+
+                			" SET sum=sum+"+salesPrice+", tstamp = '"+lastTimeStamp+"'"+
+                			" WHERE pid = "+salesPid+" AND cid = "+productsCid+";";
+                	pre = conn.prepareStatement(query);
+                	pre.executeUpdate();
+                	conn.commit();
+                	
+                	//update pre_middle
+                	query = "UPDATE pre_middle"+
+                			" SET sum=sum+"+salesPrice+" , tstamp = '"+lastTimeStamp+"'"+
+                			" WHERE stateid = "+usersState+" AND pid ="+salesPid+" AND cid = "+productsCid+";";
+                	pre = conn.prepareStatement(query);
+                	pre.executeUpdate();
+                	conn.commit();
+                	conn.setAutoCommit(true);
+                	
+                }
+                //update global time stamp if last timestamp is not null
+                if(lastTimeStamp != null){
+    	            query = "UPDATE last_updated_time SET timestamp= '"+lastTimeStamp+"';";
+    	            stmt.execute(query);
+                }
+                
+                conn.close();
+                stmt.close();
+                return lastTimeStamp;
+            }catch(SQLException e){
+            	throw new RuntimeException(e);
+            } catch (Exception e) {
+    			e.printStackTrace();
+    		}
+            return null;
+        }else{
+            return null;
+        }
+    }
+    public static JSONObject Refresh(String date){
+    	String global_time_stamp = null;
+    	global_time_stamp = UpdatePrecomputation();
+    	
+    	Connection conn = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+    	
+        try {
+			conn = HelperUtils.connect();
+			stmt = conn.createStatement();
+			
+			JSONObject result = new JSONObject();
+			JSONArray jsonArray_pre_states_all = new JSONArray();
+			JSONArray jsonArray_pre_state_cate = new JSONArray();
+			JSONArray jsonArray_pre_products_cid = new JSONArray();
+			JSONArray jsonArray_pre_middle = new JSONArray();
+			
+			if(date!=null){
+	    		String[] tables = {"pre_states_all","pre_state_cate","pre_products_cid","pre_middle"};
+	    		for(int i  = 0;i<tables.length;i++){
+	    			String query = "SELECT * FROM "+tables[i]+" WHERE tstamp > '"+date+"';";
+	    			rs = stmt.executeQuery(query);
+	    			while(rs.next()){
+	    				System.out.println(rs.getString(1)+" - "+rs.getString(2)+ " - "+rs.getString(3)+" - "+rs.getString(4));
+	    				JSONObject tmp = new JSONObject();
+	    				if(i==0){
+	    					tmp.put("stateid", rs.getString(1));
+	    					tmp.put("statename", rs.getString(2));
+	    					tmp.put("sum", rs.getString(3));
+	    					tmp.put("tstamp", rs.getString(4));
+	    					jsonArray_pre_states_all.put(tmp);
+	    				}else if(i==1){
+	    					tmp.put("stateid", rs.getString(1));
+	    					tmp.put("statename", rs.getString(2));
+	    					tmp.put("cid", rs.getString(3));
+	    					tmp.put("sum", rs.getString(4));
+	    					tmp.put("tstamp", rs.getString(5));
+	    					jsonArray_pre_state_cate.put(tmp);
+	    				}else if(i==2){
+	    					tmp.put("pid", rs.getString(1));
+	    					tmp.put("pname", rs.getString(2));
+	    					tmp.put("cid", rs.getString(3));
+	    					tmp.put("sum", rs.getString(4));
+	    					tmp.put("tstamp", rs.getString(5));
+	    					jsonArray_pre_products_cid.put(tmp);
+	    				}else if(i==3){
+	    					tmp.put("stateid", rs.getString(1));
+	    					tmp.put("pid", rs.getString(2));
+	    					tmp.put("cid", rs.getString(3));
+	    					tmp.put("sum", rs.getString(4));
+	    					tmp.put("tstamp", rs.getString(5));
+	    					jsonArray_pre_middle.put(tmp);
+	    				}
+	    			}
+	    			System.out.println("=========================");
+	    		}
+	    		result.put("pre_states_all", jsonArray_pre_states_all);
+	    		result.put("pre_state_cate", jsonArray_pre_state_cate);
+	    		result.put("pre_products_cid", jsonArray_pre_products_cid);
+	    		result.put("pre_middle", jsonArray_pre_middle);
+	    		System.out.println("==================================================");
+				conn.close();
+				stmt.close();
+	    		return result;
+			}else{
+	    		return null;
+	    	}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         return null;
+
     }
 }

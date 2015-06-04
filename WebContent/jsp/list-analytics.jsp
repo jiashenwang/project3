@@ -1,14 +1,21 @@
 <%@page import="java.util.*" import="helpers.*" import="models.*"%>
 <%
     // check out global time stamp
+	//String date = (String)session.getAttribute("Personal_Time_Stamp");//AnalyticsHelper.getGlobalTimeStamp();
+	
 	String date = AnalyticsHelper.getGlobalTimeStamp();
-	application.setAttribute("Global_Time_Stamp", date);
-
+	session.setAttribute("Personal_Time_Stamp", date);
+	
+	System.out.println(session.getAttribute("Personal_Time_Stamp"));
+	
     String action = request.getParameter("action");
     if (action != null) {
+    	String select = request.getParameter("select");
+    	System.out.println("selectedtop "+ select);
     	if(action.equals("search")){
- 			String last_updated_date = AnalyticsHelper.UpdatePrecomputation(date);
     		
+ 			String last_updated_date = AnalyticsHelper.UpdatePrecomputation();
+    		 
 	        //String rowType = request.getParameter("rowType");
 	        //String order = request.getParameter("order");
 	        String rowType = "States";
@@ -39,7 +46,7 @@
 	            int [][] prices = analytics.getPrices();
 	            int i = 0, j = 0;
 	%>
-	<table class="table table-bordered" align="center">
+	<table id="table" class="table table-bordered" align="center">
 		<thead>
 			<tr align="center">
 				<th class="col-md-1"><B></B></th>
@@ -48,7 +55,7 @@
 				        Integer price = analytics.getProductPrices().get(pid);
 				        price = (price != null) ? price : 0;
 				%>
-				<th class="col-md-1"><B><%=analytics.getProducts().get(pid).getName()%></B> <div style="font-weight: normal;"> <%= price %> </div></th>
+				<th class="col-md-1"><B><%=analytics.getProducts().get(pid).getName()%></B> <div id="<%=("p"+pid)%>" style="font-weight: normal;"> <%= price %> </div></th>
 				<%
 				    }
 				%>
@@ -69,11 +76,11 @@
 	                price = (price != null) ? price : 0;
 	        %>
 	        <tr align="center">
-	            <td class="col-md-1"><B><%=analytics.getStates().get(sid).getName()%></B> <div> <%= price %> </div> </td>
+	            <td class="col-md-1"><B><%=analytics.getStates().get(sid).getName()%></B> <div id="<%=("s"+sid)%>"> <%= price %> </div> </td>
 	            <%
 	                for (Integer pid : analytics.getProductPositions()) {
 	            %>
-	            <td class="col-md-1"> <%= prices[i][j] %></td>
+	            <td class="col-md-1" id="<%=(sid+";"+pid)%>"> <%= prices[i][j] %></td>
 	            <%
 	                j++;
 	                }
@@ -159,7 +166,7 @@
 	        }
 	        if(last_updated_date!=null){
 	        	System.out.println("in "+last_updated_date);
- 				application.setAttribute("Global_Time_Stamp", last_updated_date);
+ 				session.setAttribute("Personal_Time_Stamp", last_updated_date);
 	        }else{
 	        	System.out.println("out");
 	        }
