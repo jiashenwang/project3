@@ -348,7 +348,6 @@ public class AnalyticsHelper {
             rs = stmt.executeQuery(query);
             while(rs.next()){
             	date = rs.getString(1);
-            	System.out.println(rs.getString(1));
             }
             conn.close();
             stmt.close();
@@ -360,10 +359,14 @@ public class AnalyticsHelper {
 		}
         return null;
     }
-    public static String UpdatePrecomputation(String date){
+    public static String UpdatePrecomputation(){
         Connection conn = null;
         Statement stmt = null;
         ResultSet rs = null;
+        String date = null;
+        
+        date = getGlobalTimeStamp();
+        
         if(date !=null){
             try{
             	conn = HelperUtils.connect();
@@ -381,7 +384,6 @@ public class AnalyticsHelper {
                 	//TODO
                 	//get the last sales timestamp
                 	String usersState = rs.getString(1);
-                	System.out.println("stateid: "+usersState);
                 	String salesUid = rs.getString(2);
                 	String productsCid = rs.getString(3);
                 	String salesPid = rs.getString(4);
@@ -419,7 +421,7 @@ public class AnalyticsHelper {
                 	//update pre_middle
                 	query = "UPDATE pre_middle"+
                 			" SET sum=sum+"+salesPrice+" , tstamp = '"+lastTimeStamp+"'"+
-                			" WHERE stateid = "+usersState+" AND cid = "+productsCid+";";
+                			" WHERE stateid = "+usersState+" AND pid ="+salesPid+" AND cid = "+productsCid+";";
                 	pre = conn.prepareStatement(query);
                 	pre.executeUpdate();
                 	conn.commit();
@@ -444,5 +446,41 @@ public class AnalyticsHelper {
         }else{
             return null;
         }
+    }
+    public static String Refresh(String date){
+    	String global_time_stamp = null;
+    	global_time_stamp = UpdatePrecomputation();
+    	
+    	Connection conn = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+    	
+        try {
+			conn = HelperUtils.connect();
+			stmt = conn.createStatement();
+			
+			if(date!=null){
+	    		String[] tables = {"pre_states_all","pre_state_cate","pre_products_cid","pre_middle"};
+	    		for(int i  = 0;i<tables.length;i++){
+	    			String query = "SELECT * FROM "+tables[i]+" WHERE tstamp > '"+date+"';";
+	    			rs = stmt.executeQuery(query);
+	    			while(rs.next()){
+	    				System.out.println(rs.getString(1)+" - "+rs.getString(2)+ " - "+rs.getString(3)+" - "+rs.getString(4));
+	    			}
+	    			System.out.println("=========================");
+	    		}
+	    		System.out.println("==================================================");
+			}else{
+	    		return null;
+	    	}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return null;
+
     }
 }

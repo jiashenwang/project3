@@ -1,3 +1,4 @@
+<script src="./js/refresh.js"></script>
 <%@page import="java.util.List" import="helpers.*" import="models.*"%>
 <%
     List<CategoryWithCount> categories = CategoriesHelper.listCategoriesNoCount();
@@ -35,8 +36,13 @@
 				<input type="hidden" name="col_offset" value="0"> 
 				<input type="hidden" name="action" value="search">
 				<input style="margin : 10px 15px;" type="submit" value="Search">
-				<input type="submit" value="Refresh">
 			</form>
+			<%
+/* 			String date = AnalyticsHelper.getGlobalTimeStamp();
+			application.setAttribute("Global_Time_Stamp", date); */
+			%>
+			<!-- <input id="date" type="hidden" name="date" value="<%//=date%>">  -->
+			<button onclick="refresh()">Refresh</button>
 		</div>
 	</div>
 </div>

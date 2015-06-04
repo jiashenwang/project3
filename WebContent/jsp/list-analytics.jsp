@@ -1,14 +1,19 @@
 <%@page import="java.util.*" import="helpers.*" import="models.*"%>
 <%
     // check out global time stamp
+	//String date = (String)application.getAttribute("Personal_Time_Stamp");//AnalyticsHelper.getGlobalTimeStamp();
+	
 	String date = AnalyticsHelper.getGlobalTimeStamp();
-	application.setAttribute("Global_Time_Stamp", date);
+	application.setAttribute("Personal_Time_Stamp", date);
+	
+	System.out.println(application.getAttribute("Personal_Time_Stamp"));
+	
     String action = request.getParameter("action");
     if (action != null) {
     	if(action.equals("search")){
     		
- 			String last_updated_date = AnalyticsHelper.UpdatePrecomputation(date);
-    		
+ 			String last_updated_date = AnalyticsHelper.UpdatePrecomputation();
+    		 
 	        //String rowType = request.getParameter("rowType");
 	        //String order = request.getParameter("order");
 	        String rowType = "States";
@@ -159,7 +164,7 @@
 	        }
 	        if(last_updated_date!=null){
 	        	System.out.println("in "+last_updated_date);
- 				application.setAttribute("Global_Time_Stamp", last_updated_date);
+ 				application.setAttribute("Personal_Time_Stamp", last_updated_date);
 	        }else{
 	        	System.out.println("out");
 	        }
