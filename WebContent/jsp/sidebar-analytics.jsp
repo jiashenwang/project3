@@ -32,6 +32,8 @@
 							%>
 					</select></li>
 				</ul>
+				<% System.out.println("category: "+ category); %>
+				<input id="s" type="hidden" name="select" value="<%=category%>">
 				<input type="hidden" name="row_offset" value="0">
 				<input type="hidden" name="col_offset" value="0"> 
 				<input type="hidden" name="action" value="search">
@@ -42,7 +44,9 @@
 			application.setAttribute("Global_Time_Stamp", date); */
 			%>
 			<!-- <input id="date" type="hidden" name="date" value="<%//=date%>">  -->
+			<%if(category!=null){%>
 			<button onclick="refresh()">Refresh</button>
+			<%} %>
 		</div>
 	</div>
 </div>

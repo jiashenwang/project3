@@ -11,6 +11,9 @@ import java.util.HashMap;
 
 import javax.servlet.jsp.JspWriter;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import models.Analytics;
 import models.Product;
 import models.State;
@@ -447,7 +450,7 @@ public class AnalyticsHelper {
             return null;
         }
     }
-    public static String Refresh(String date){
+    public static JSONObject Refresh(String date){
     	String global_time_stamp = null;
     	global_time_stamp = UpdatePrecomputation();
     	
@@ -459,6 +462,12 @@ public class AnalyticsHelper {
 			conn = HelperUtils.connect();
 			stmt = conn.createStatement();
 			
+			JSONObject result = new JSONObject();
+			JSONArray jsonArray_pre_states_all = new JSONArray();
+			JSONArray jsonArray_pre_state_cate = new JSONArray();
+			JSONArray jsonArray_pre_products_cid = new JSONArray();
+			JSONArray jsonArray_pre_middle = new JSONArray();
+			
 			if(date!=null){
 	    		String[] tables = {"pre_states_all","pre_state_cate","pre_products_cid","pre_middle"};
 	    		for(int i  = 0;i<tables.length;i++){
@@ -466,10 +475,46 @@ public class AnalyticsHelper {
 	    			rs = stmt.executeQuery(query);
 	    			while(rs.next()){
 	    				System.out.println(rs.getString(1)+" - "+rs.getString(2)+ " - "+rs.getString(3)+" - "+rs.getString(4));
+	    				JSONObject tmp = new JSONObject();
+	    				if(i==0){
+	    					tmp.put("stateid", rs.getString(1));
+	    					tmp.put("statename", rs.getString(2));
+	    					tmp.put("sum", rs.getString(3));
+	    					tmp.put("tstamp", rs.getString(4));
+	    					jsonArray_pre_states_all.put(tmp);
+	    				}else if(i==1){
+	    					tmp.put("stateid", rs.getString(1));
+	    					tmp.put("statename", rs.getString(2));
+	    					tmp.put("cid", rs.getString(3));
+	    					tmp.put("sum", rs.getString(4));
+	    					tmp.put("tstamp", rs.getString(5));
+	    					jsonArray_pre_state_cate.put(tmp);
+	    				}else if(i==2){
+	    					tmp.put("pid", rs.getString(1));
+	    					tmp.put("pname", rs.getString(2));
+	    					tmp.put("cid", rs.getString(3));
+	    					tmp.put("sum", rs.getString(4));
+	    					tmp.put("tstamp", rs.getString(5));
+	    					jsonArray_pre_products_cid.put(tmp);
+	    				}else if(i==3){
+	    					tmp.put("stateid", rs.getString(1));
+	    					tmp.put("pid", rs.getString(2));
+	    					tmp.put("cid", rs.getString(3));
+	    					tmp.put("sum", rs.getString(4));
+	    					tmp.put("tstamp", rs.getString(5));
+	    					jsonArray_pre_middle.put(tmp);
+	    				}
 	    			}
 	    			System.out.println("=========================");
 	    		}
+	    		result.put("pre_states_all", jsonArray_pre_states_all);
+	    		result.put("pre_state_cate", jsonArray_pre_state_cate);
+	    		result.put("pre_products_cid", jsonArray_pre_products_cid);
+	    		result.put("pre_middle", jsonArray_pre_middle);
 	    		System.out.println("==================================================");
+				conn.close();
+				stmt.close();
+	    		return result;
 			}else{
 	    		return null;
 	    	}
