@@ -6,10 +6,10 @@
 	if(action == null) action = "";
 	
 	if(action.equals("refresh")){
-		String date = (String)application.getAttribute("Personal_Time_Stamp");
+		String date = (String)session.getAttribute("Personal_Time_Stamp");
 		
 		JSONObject r = AnalyticsHelper.Refresh(date);
-		application.setAttribute("Personal_Time_Stamp", AnalyticsHelper.getGlobalTimeStamp());
+		session.setAttribute("Personal_Time_Stamp", AnalyticsHelper.getGlobalTimeStamp());
 		
 		JSONObject result = new JSONObject();
 		result.put("success", true);

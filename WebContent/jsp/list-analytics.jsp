@@ -1,12 +1,12 @@
 <%@page import="java.util.*" import="helpers.*" import="models.*"%>
 <%
     // check out global time stamp
-	//String date = (String)application.getAttribute("Personal_Time_Stamp");//AnalyticsHelper.getGlobalTimeStamp();
+	//String date = (String)session.getAttribute("Personal_Time_Stamp");//AnalyticsHelper.getGlobalTimeStamp();
 	
 	String date = AnalyticsHelper.getGlobalTimeStamp();
-	application.setAttribute("Personal_Time_Stamp", date);
+	session.setAttribute("Personal_Time_Stamp", date);
 	
-	System.out.println(application.getAttribute("Personal_Time_Stamp"));
+	System.out.println(session.getAttribute("Personal_Time_Stamp"));
 	
     String action = request.getParameter("action");
     if (action != null) {
@@ -166,7 +166,7 @@
 	        }
 	        if(last_updated_date!=null){
 	        	System.out.println("in "+last_updated_date);
- 				application.setAttribute("Personal_Time_Stamp", last_updated_date);
+ 				session.setAttribute("Personal_Time_Stamp", last_updated_date);
 	        }else{
 	        	System.out.println("out");
 	        }

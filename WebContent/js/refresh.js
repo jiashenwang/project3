@@ -2,7 +2,7 @@
 var id_buffer=[];
 
 function refresh(){
-	for(var i=0; id_buffer.length; i++){
+	for(var i=0; i<id_buffer.length; i++){
 		var cell = document.getElementById(id_buffer[i]);
 		if(cell!=null){
 			cell.style.color = "black";
@@ -25,7 +25,10 @@ function refresh(){
 		var response = eval('(' + responseDoc + ')');
 
 		var select = document.getElementById("s");
-		
+		console.log(response.result.pre_states_all);
+		console.log(response.result.pre_state_cate);
+		console.log(response.result.pre_middle);
+		console.log(response.result.pre_products_cid);
 		if(select.value=="0" ){
 			for(var i=0; i<response.result.pre_states_all.length; i++){
 				var cell = document.getElementById("s"+response.result.pre_states_all[i].stateid);
@@ -42,8 +45,8 @@ function refresh(){
 					cell.innerHTML = response.result.pre_state_cate[i].sum;
 					cell.style.color = 'red';
 				}
+				id_buffer.push("s"+response.result.pre_state_cate[i].stateid);
 			}
-			id_buffer.push("s"+response.result.pre_state_cate[i].stateid);
 		}
 		for(var i=0; i<response.result.pre_middle.length; i++){
 			var cell = document.getElementById(response.result.pre_middle[i].stateid+";"+response.result.pre_middle[i].pid);
