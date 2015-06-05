@@ -5,6 +5,7 @@ var userAgeCheck = false;
 var userAgeIsInt = true;
 var userStateCheck = false;
 
+// check if user exists
 function checkUser(){	
 	var input = document.getElementById("name");
 	var username = input.value;
@@ -50,6 +51,7 @@ function checkUser(){
 		xmlHttp.send(null);
 	}
 }
+// check if aged is empty or not number
 function checkAge(){
 	var input = document.getElementById("age");
 	var age = input.value;
@@ -72,6 +74,7 @@ function checkAge(){
 		userAgeIsInt = true;
 	}
 }
+// check if role is empty
 function checkRole(){
 	var input = document.getElementById("role");
 	var role = input.options[input.selectedIndex].text;
@@ -85,6 +88,7 @@ function checkRole(){
 		userRoleCheck = true;
 	}
 }
+// check if state is empty
 function checkState(){
 	var input = document.getElementById("state");
 	var role = input.options[input.selectedIndex].text;
@@ -98,6 +102,7 @@ function checkState(){
 		userStateCheck = true;
 	}
 }
+// ajax signup
 function signUp(){
 	var success = document.getElementById('success');
 	var unsuccess = document.getElementById('unsuccess'); 

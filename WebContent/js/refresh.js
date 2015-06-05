@@ -2,6 +2,7 @@
 var id_buffer=[];
 
 function refresh(){
+	// this loop is to change colored table cell to black
 	for(var i=0; i<id_buffer.length; i++){
 		var cell = document.getElementById(id_buffer[i]);
 		if(cell!=null){
@@ -14,6 +15,7 @@ function refresh(){
 	//document.getElementById("table").style.color = "#000000";
 	var url = "./jsp/api-refresh.jsp?"+"action="+"refresh";
 	var xmlHttp=new XMLHttpRequest();
+	// call back function
 	xmlHttp.onreadystatechange=function() {
 		if (xmlHttp.readyState != 4) return;
 		
@@ -29,6 +31,8 @@ function refresh(){
 		console.log(response.result.pre_state_cate);
 		console.log(response.result.pre_middle);
 		console.log(response.result.pre_products_cid);
+		
+		// parse json response, and change the cell to red
 		if(select.value=="0" ){
 			for(var i=0; i<response.result.pre_states_all.length; i++){
 				var cell = document.getElementById("s"+response.result.pre_states_all[i].stateid);
@@ -66,6 +70,7 @@ function refresh(){
 		}
 		
 	};	
+	// send request
 	xmlHttp.open("GET",url,true);
 	xmlHttp.send(null);
 	

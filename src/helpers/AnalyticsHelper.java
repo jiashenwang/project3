@@ -338,7 +338,7 @@ public class AnalyticsHelper {
             return "<option value=\"" + value + "\">" + option + "</option>";
         }
     }
-    
+    // get global time
     public static String getGlobalTimeStamp(){
         Connection conn = null;
         Statement stmt = null;
@@ -362,6 +362,7 @@ public class AnalyticsHelper {
 		}
         return null;
     }
+    // update precomputation table by comparing globale time with precomputation table time
     public static String UpdatePrecomputation(){
         Connection conn = null;
         Statement stmt = null;
@@ -450,8 +451,12 @@ public class AnalyticsHelper {
             return null;
         }
     }
+    // refresh page
     public static JSONObject Refresh(String date){
     	String global_time_stamp = null;
+    	
+    	// compare global time with sales table
+    	// if find new sales, update precomputation table
     	global_time_stamp = UpdatePrecomputation();
     	
     	Connection conn = null;
@@ -462,6 +467,7 @@ public class AnalyticsHelper {
 			conn = HelperUtils.connect();
 			stmt = conn.createStatement();
 			
+			// init return json onject which contained 4 json array for 4 precomputation tables
 			JSONObject result = new JSONObject();
 			JSONArray jsonArray_pre_states_all = new JSONArray();
 			JSONArray jsonArray_pre_state_cate = new JSONArray();
@@ -469,11 +475,13 @@ public class AnalyticsHelper {
 			JSONArray jsonArray_pre_middle = new JSONArray();
 			
 			if(date!=null){
+				// compare with personal time with precomputtation time.
 	    		String[] tables = {"pre_states_all","pre_state_cate","pre_products_cid","pre_middle"};
 	    		for(int i  = 0;i<tables.length;i++){
 	    			String query = "SELECT * FROM "+tables[i]+" WHERE tstamp > '"+date+"';";
 	    			rs = stmt.executeQuery(query);
 	    			while(rs.next()){
+	    				// convert result to json array type
 	    				System.out.println(rs.getString(1)+" - "+rs.getString(2)+ " - "+rs.getString(3)+" - "+rs.getString(4));
 	    				JSONObject tmp = new JSONObject();
 	    				if(i==0){
