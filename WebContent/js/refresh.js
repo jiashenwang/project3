@@ -11,9 +11,9 @@ function refresh(){
 	}
 	id_buffer = [];
 	//var date =document.getElementById("date").value;
-	
+	var select = document.getElementById("s");
+	var url = "./jsp/api-refresh.jsp?"+"action="+"refresh&category="+(Number(select.value)).toString();
 	//document.getElementById("table").style.color = "#000000";
-	var url = "./jsp/api-refresh.jsp?"+"action="+"refresh";
 	var xmlHttp=new XMLHttpRequest();
 	// call back function
 	xmlHttp.onreadystatechange=function() {
@@ -26,7 +26,6 @@ function refresh(){
 		var responseDoc = xmlHttp.responseText;
 		var response = eval('(' + responseDoc + ')');
 
-		var select = document.getElementById("s");
 		console.log(response.result.pre_states_all);
 		console.log(response.result.pre_state_cate);
 		console.log(response.result.pre_middle);

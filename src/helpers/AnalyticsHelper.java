@@ -452,7 +452,7 @@ public class AnalyticsHelper {
         }
     }
     // refresh page
-    public static JSONObject Refresh(String date){
+    public static JSONObject Refresh(String date,String category){
     	String global_time_stamp = null;
     	
     	// compare global time with sales table
@@ -479,6 +479,10 @@ public class AnalyticsHelper {
 	    		String[] tables = {"pre_states_all","pre_state_cate","pre_products_cid","pre_middle"};
 	    		for(int i  = 0;i<tables.length;i++){
 	    			String query = "SELECT * FROM "+tables[i]+" WHERE tstamp > '"+date+"';";
+	    			if(i != 0 & !category.isEmpty()){
+	    				query = "SELECT * FROM "+tables[i]+" WHERE tstamp > '"+date+"' AND cid = "+category+";";
+	    			}
+	    			
 	    			rs = stmt.executeQuery(query);
 	    			while(rs.next()){
 	    				// convert result to json array type
