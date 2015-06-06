@@ -479,7 +479,7 @@ public class AnalyticsHelper {
 	    		String[] tables = {"pre_states_all","pre_state_cate","pre_products_cid","pre_middle"};
 	    		for(int i  = 0;i<tables.length;i++){
 	    			String query = "SELECT * FROM "+tables[i]+" WHERE tstamp > '"+date+"';";
-	    			if(i != 0 & !category.isEmpty()){
+	    			if(i != 0 & !category.equals("0")){
 	    				query = "SELECT * FROM "+tables[i]+" WHERE tstamp > '"+date+"' AND cid = "+category+";";
 	    			}
 	    			
